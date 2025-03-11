@@ -1,26 +1,24 @@
 import pandas as pd
 
-# Paths (confirm path correctness)
 base_path = r'C:\Users\Lydiah\PyCharmProjects\PythonProject\PythonProject\March ML Mania 2025\data\march-machine-learning-mania-2025\\'
 
-# Load regular season results
-regular_season = pd.read_csv(base_path + 'MRegularSeasonCompactResults.csv')
+# Load Regular Season Compact Results
+regular_results = pd.read_csv(base_path + 'MRegularSeasonCompactResults.csv')
 
-# Compute Team Win Counts (Simple strength metric)
-team_win_counts = regular_season.groupby('WTeamID').size().reset_index(name='WinCount')
+# Compute Team Wins and Losses
+team_wins = regular_results.groupby('WTeamID').size().reset_index(name='Wins')
+team_losses = regular_results.groupby('LTeamID').size().reset_index(name='Losses')
 
-# Compute Team Loss Counts
-team_loss_counts = regular_season.groupby('LTeamID').size().reset_index(name='LossCount')
+# Merge wins and losses
+team_strength = pd.merge(team_wins, team_losses, left_on='WTeamID', right_on='LTeamID', how='outer').fillna(0)
 
-# Merge to form basic team strength metric
-team_strength = pd.merge(team_win_counts, team_loss_counts, left_on='WTeamID', right_on='LTeamID', how='outer').fillna(0)
-team_strength['TeamID'] = team_strength['WTeamID'].fillna(team_strength['LTeamID'])
+# Finalize columns
+team_strength['TeamID'] = team_strength['WTeamID'].combine_first(team_strength['LTeamID'])
+team_strength = team_strength[['TeamID', 'Wins', 'Losses']]
+team_strength['WinRatio'] = team_strength['Wins'] / (team_strength['Wins'] + team_strength['Losses'])
 
-# Drop redundant columns
-team_strength = team_strength[['TeamID', 'WinCount', 'LossCount']]
+# 🚀 **Save the team strength features**
+team_strength.to_csv(base_path + 'team_strength.csv', index=False)
 
-# Calculate win percentage
-team_strength['WinPct'] = team_strength['WinCount'] / (team_strength['WinCount'] + team_strength['LossCount'])
+print("✅ Team strength features saved successfully!")
 
-# Preview engineered features
-print(team_strength.sort_values(by='WinPct', ascending=False).head(10))
