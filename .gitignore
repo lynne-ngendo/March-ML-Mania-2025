@@ -1,0 +1,5 @@
+data/march-machine-learning-mania-2025/*.csv
+!data/march-machine-learning-mania-2025/MNCAATourneyCompactResults.csv
+!data/march-machine-learning-mania-2025/MRegularSeasonCompactResults.csv
+!data/march-machine-learning-mania-2025/MTeams.csv
+!data/march-machine-learning-mania-2025/MNCAATourneySeeds.csv
